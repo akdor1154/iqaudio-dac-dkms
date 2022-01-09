@@ -1,11 +1,17 @@
 
 obj-m := iqaudio-dac.o
-dtbo-y += iqaudio-dacplus.dtbo
 
-KVERSION := $(shell uname -r)
+export KVERSION := $(shell uname -r)
+
+DIRS = overlays
+BUILDDIRS = $(DIRS:%=build-%)
+CLEANDIRS = $(DIRS:%=clean-%)
 
 
-all: $(dtbo-y)
-	$(MAKE) -C /lib/modules/$(KVERSION)/build M=$(PWD) modules
+all: $(BUILDDIRS)
+	$(MAKE) -C /lib/modules/$(KVERSION)/build M=$(PWD)
+$(DIRS): $(BUILDDIRS)
+$(BUILDDIRS):
+	$(MAKE) -C $(@:build-%=%)
 clean:
 	$(MAKE) -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
